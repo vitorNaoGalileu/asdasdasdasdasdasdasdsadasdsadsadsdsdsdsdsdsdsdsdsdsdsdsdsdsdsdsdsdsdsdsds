@@ -1,5 +1,5 @@
 using System.Collections;
-using UnityEngine;
+using UnityEngine;                   // ✈️🛫🛫🛫🛫🛫🛫🛬🛬🛬🛬🛬🛬🛬🛬💺💺💺💺💺💺🚀🚀🚀🚀🚀🚀🚀🚀🚀🚁🚁🚁🚁🚁🛰️🛰️🛰️🛰️🛰️🛰️🛰️🛰️🛰️🛸🛸🛸🛸🚢🚢🚢🛳️🛳️🛳️⚓⚓⚓🚨🚨🚨🚨🚨🚨🚨🚨🚨🏕️🏕️🏕️🏕️🏞️🏞️🏞️🏖️🏖️
 
 public class movement : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class movement : MonoBehaviour
     public bool isGrounded;
 
     [Header("Ghost Trail")]
-    [Tooltip("Intervalo entre criação de ghosts (segundos) enquanto corre)")]
+    [Tooltip("Intervalo entre criação de bixinho por segundo enquanto corre 😶‍🌫️🫨🫨🫨)")]
     public float ghostSpawnRate = 0.03f;
     [Tooltip("Tempo de vida do ghost (segundos)")]
     public float ghostLifetime = 0.5f;
@@ -22,12 +22,12 @@ public class movement : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private float ghostTimer = 0f;
 
-    private bool jumpRequested = false;
+    private bool puloasas = false;          //pullllllllllllllllooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     private float horizontalInput = 0f;
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("ground"))
+        if (collision.gameObject.CompareTag("ground"))                      // o chaooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
         {
             isGrounded = true;
         }
@@ -53,9 +53,9 @@ public class movement : MonoBehaviour
     {
         horizontalInput = Input.GetAxis("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)           //negocio do input aaaa
         {
-            jumpRequested = true;
+            puloasas = true;
         }
 
         if (spriteRenderer != null && Mathf.Abs(horizontalInput) > 0f && Mathf.Abs(rb.linearVelocity.x) > runThreshold)
@@ -77,10 +77,10 @@ public class movement : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
 
-        if (jumpRequested)
+        if (puloasas)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            jumpRequested = false;
+            puloasas = false;
         }
     }
 
