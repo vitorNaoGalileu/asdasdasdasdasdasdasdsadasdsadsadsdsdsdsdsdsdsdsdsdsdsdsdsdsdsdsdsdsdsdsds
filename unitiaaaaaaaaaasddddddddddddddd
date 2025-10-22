@@ -1,0 +1,122 @@
+using System.Collections;
+using UnityEngine;
+
+public class movement : MonoBehaviour
+{
+    public float speed = 8.0f;
+    public float jumpForce = 5f;
+    private Rigidbody2D rb;
+    public bool isGrounded;
+
+    [Header("Ghost Trail")]
+    [Tooltip("Intervalo entre criação de ghosts (segundos) enquanto corre)")]
+    public float ghostSpawnRate = 0.03f;
+    [Tooltip("Tempo de vida do ghost (segundos)")]
+    public float ghostLifetime = 0.5f;
+    [Tooltip("Alpha inicial do ghost")]
+    [Range(0f, 0.5f)]
+    public float ghostStartAlpha = 0.6f;
+    [Tooltip("Velocidade mínima para considerar 'correndo'")]
+    public float runThreshold = 0.1f;
+
+    private SpriteRenderer spriteRenderer;
+    private float ghostTimer = 0f;
+
+    private bool jumpRequested = false;
+    private float horizontalInput = 0f;
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("ground"))
+        {
+            isGrounded = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("ground"))
+        {
+            isGrounded = false;
+        }
+    }
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            Debug.LogWarning("movement: SpriteRenderer não encontrado no jogador. Ghosts não serão gerados.");
+    }
+
+    void Update()
+    {
+        horizontalInput = Input.GetAxis("Horizontal");
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            jumpRequested = true;
+        }
+
+        if (spriteRenderer != null && Mathf.Abs(horizontalInput) > 0f && Mathf.Abs(rb.linearVelocity.x) > runThreshold)
+        {
+            ghostTimer += Time.deltaTime;
+            if (ghostTimer >= ghostSpawnRate)
+            {
+                SpawnGhost();
+                ghostTimer = 0f;
+            }
+        }
+        else
+        {
+            ghostTimer = ghostSpawnRate;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
+
+        if (jumpRequested)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            jumpRequested = false;
+        }
+    }
+
+    private void SpawnGhost()
+    {
+        if (spriteRenderer == null) return;
+
+        GameObject ghost = new GameObject("Ghost");
+        ghost.transform.position = transform.position;
+        ghost.transform.rotation = transform.rotation;
+        SpriteRenderer sr = ghost.AddComponent<SpriteRenderer>();
+        sr.sprite = spriteRenderer.sprite;
+        sr.flipX = spriteRenderer.flipX;
+        sr.sortingLayerName = spriteRenderer.sortingLayerName;
+        sr.sortingOrder = spriteRenderer.sortingOrder - 1;
+        Color c = spriteRenderer.color;
+        c.a = ghostStartAlpha;
+        sr.color = c;
+
+        StartCoroutine(FadeAndDestroy(sr, ghostLifetime));
+    }
+
+    private IEnumerator FadeAndDestroy(SpriteRenderer sr, float lifetime)
+    {
+        float t = 0f;
+        Color col = sr.color;
+        float startAlpha = col.a;
+
+        while (t < lifetime)
+        {
+            t += Time.deltaTime;
+            col.a = Mathf.Lerp(startAlpha, 0f, t / lifetime);
+            if (sr != null) sr.color = col;
+            yield return null;
+        }
+
+        if (sr != null) Destroy(sr.gameObject);
+    }
+}
